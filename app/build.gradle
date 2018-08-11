@@ -6,9 +6,9 @@ android {
     defaultConfig {
         applicationId "com.keremkayacan.loggystyle"
         minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 5
-        versionName "1.00.022"
+        targetSdkVersion 26
+        versionCode 6
+        versionName "1.00.023"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
