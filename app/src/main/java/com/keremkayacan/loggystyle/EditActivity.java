@@ -2,18 +2,17 @@ package com.keremkayacan.loggystyle;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +29,7 @@ import java.io.InputStreamReader;
 public class EditActivity extends AppCompatActivity {
 
     public static final int RESULT_DELETED = 91;
-    private AdView mAdView;
+//    private AdView mAdView;
 
     private void updateItem(){
         File yearDir = new File(getFilesDir(), getIntent().getStringExtra("time").substring(0,4));
@@ -186,9 +185,9 @@ public class EditActivity extends AppCompatActivity {
         EditText txtText = (EditText) findViewById(R.id.txtText);
         txtText.setText(intent.getStringExtra("text"));
 
-        mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+//        mAdView = (AdView) findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        mAdView.loadAd(adRequest);
 
     }
 
