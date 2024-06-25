@@ -1,4 +1,4 @@
-package com.keremkayacan.loggystyle;
+package com.keremkayacan.loggiestyle;
 
 public class Constants {
     public static final String ADMOB_APP_ID = "ca-app-pub-nnnnnnnnnnnnnnnn~nnnnnnnnnn";

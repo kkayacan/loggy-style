@@ -1,4 +1,4 @@
-package com.keremkayacan.loggystyle;
+package com.keremkayacan.loggiestyle;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

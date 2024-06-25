@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.keremkayacan.loggystyle">
+    package="com.keremkayacan.loggiestyle">
 
     <application
         android:allowBackup="true"
@@ -28,7 +28,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.keremkayacan.loggystyle.MainActivity" />
+                android:value="com.keremkayacan.loggiestyle.MainActivity" />
         </activity>
         <activity
             android:name=".SettingsActivity"
@@ -36,7 +36,7 @@
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.keremkayacan.loggystyle.MainActivity" />
+                android:value="com.keremkayacan.loggiestyle.MainActivity" />
         </activity>
 
 

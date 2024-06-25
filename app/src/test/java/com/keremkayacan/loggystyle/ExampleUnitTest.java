@@ -1,4 +1,4 @@
-package com.keremkayacan.loggystyle;
+package com.keremkayacan.loggiestyle;
 
 import org.junit.Test;
 
