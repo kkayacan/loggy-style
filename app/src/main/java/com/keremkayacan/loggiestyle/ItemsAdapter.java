@@ -105,4 +105,14 @@ public class ItemsAdapter extends
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mItems.size());
     }
+
+    public void updateItems(List<Item> newItems) {
+        mItems.clear();
+        mItems.addAll(newItems);
+        notifyDataSetChanged();
+    }
+
+    public List<Item> getItems(){
+        return mItems;
+    }
 }
