@@ -50,11 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_EXPORT_FILE = 1003;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
-    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
         );
-        requestStoragePermissions();
+        //requestStoragePermissions();
     }
 
     private void requestStoragePermissions() {
@@ -225,33 +221,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "All permissions are granted", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Some permissions are denied", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    public void verifyStoragePermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int writePermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            int readPermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
-            int managePermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE);
-
-            if (writePermission != PackageManager.PERMISSION_GRANTED || readPermission != PackageManager.PERMISSION_GRANTED || managePermission != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                        this,
-                        PERMISSIONS_STORAGE,
-                        REQUEST_EXTERNAL_STORAGE
-                );
-            }
-        }
-    }
 
 
 
