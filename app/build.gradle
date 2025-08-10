@@ -3,7 +3,9 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
+    namespace "com.keremkayacan.loggiestyle"
+
     defaultConfig {
         minSdk = 21
         targetSdkVersion 36
