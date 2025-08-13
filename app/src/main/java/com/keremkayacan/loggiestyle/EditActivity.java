@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import com.keremkayacan.loggiestyle.R;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -207,21 +208,21 @@ public class EditActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-            case R.id.action_delete:
-                deleteItem();
-                setActionResult(RESULT_DELETED);
-                super.finish();
-                return true;
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            finish();
+            return true;
         }
-        return true;
+        else if (id == R.id.action_delete) {
+            deleteItem();
+            setActionResult(RESULT_DELETED);
+            super.finish();
+            return true;
+        }
+        else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
 }

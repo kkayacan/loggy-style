@@ -3,12 +3,14 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 36
+    namespace "com.keremkayacan.loggiestyle"
+
     defaultConfig {
         minSdk = 21
-        targetSdkVersion 34
-        versionCode 9
-        versionName "1.1.0"
+        targetSdkVersion 36
+        versionCode 10
+        versionName "1.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     }
