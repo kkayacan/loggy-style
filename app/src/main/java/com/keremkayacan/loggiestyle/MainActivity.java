@@ -3,17 +3,15 @@ package com.keremkayacan.loggiestyle;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -47,14 +45,10 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<Item> items;
     ItemsAdapter mAdapter;
-//    private AdView mAdView;
 
     private static final int REQUEST_STORAGE_PERMISSION = 101;
     private static final int REQUEST_IMPORT_FILE = 1002;
     private static final int REQUEST_EXPORT_FILE = 1003;
-
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-
-            /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();*/
-
             Calendar calendar = Calendar.getInstance();
 
             File yearDir = new File(getFilesDir(), Integer.toString(calendar.get(Calendar.YEAR)));
@@ -88,37 +78,34 @@ public class MainActivity extends AppCompatActivity {
 
             File dayFile = new File(monthDir, AppUtil.getDayFileName(calendar.get(Calendar.DAY_OF_MONTH)));
             if (dayFile.exists()) {
-                //Read the file and convert to string
                 FileInputStream fis = null;
                 try {
                     fis = new FileInputStream(dayFile);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
-                InputStreamReader isr = new InputStreamReader(fis);
-                BufferedReader bufferedReader = new BufferedReader(isr);
-                jsonContentBuilder = new StringBuilder();
-                String jsonContentString = null;
-                try {
-                    while ((jsonContentString = bufferedReader.readLine()) != null) {
-                        jsonContentBuilder.append(jsonContentString);
+                if (fis != null) {
+                    InputStreamReader isr = new InputStreamReader(fis);
+                    BufferedReader bufferedReader = new BufferedReader(isr);
+                    jsonContentBuilder = new StringBuilder();
+                    String jsonContentString = null;
+                    try {
+                        while ((jsonContentString = bufferedReader.readLine()) != null) {
+                            jsonContentBuilder.append(jsonContentString);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    try {
+                        jsonContent = new JSONObject(jsonContentBuilder.toString());
+                        itemsArray = jsonContent.getJSONArray("items");
+                    } catch (JSONException je) {
+                        je.printStackTrace();
+                    }
                 }
-                //Convert string to JSON object
-                try {
-                    jsonContent = new JSONObject(jsonContentBuilder.toString());
-                    itemsArray = jsonContent.getJSONArray("items");
-
-                } catch (JSONException je) {
-                    je.printStackTrace();
-                }
-
             }
 
             if (jsonContent == null) {
-                //File not found -> create new JSON object
                 jsonContent = new JSONObject();
                 itemsArray = new JSONArray();
                 try {
@@ -128,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            //Create new item and put into JSON
             JSONObject itemContent = new JSONObject();
             try {
                 itemContent.put("id", UUID.randomUUID().toString());
@@ -147,53 +133,47 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            //write file
             try {
                 FileOutputStream out = new FileOutputStream(dayFile);
                 out.write(jsonContent.toString().getBytes());
                 out.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            //Add item to adapter and notify recyclerview
             try {
-                items.add(0, new Item(itemContent.getString("id"),
+                Item newItem = new Item(
+                        itemContent.getString("id"),
                         itemContent.getString("time"),
                         itemContent.getString("title"),
-                        itemContent.getString("text")));
+                        itemContent.getString("text")
+                );
+                // Orijinal listeye ekliyoruz
+                items.add(0, newItem);
+
+                // Adapter'a tüm listeyi güncelleyerek veriyoruz
+                mAdapter.updateItems(items);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            mAdapter.notifyItemInserted(0);
-            RecyclerView rvItems = (RecyclerView) findViewById(R.id.rvItems);
-            rvItems.smoothScrollToPosition(0);
 
+            RecyclerView rvItems = findViewById(R.id.rvItems);
+            rvItems.smoothScrollToPosition(0);
         });
 
-        // Lookup the recyclerview in activity layout
-        RecyclerView rvItems = (RecyclerView) findViewById(R.id.rvItems);
+        RecyclerView rvItems = findViewById(R.id.rvItems);
 
-        // Initialize items
         try {
             items = Item.createItemList(getApplicationContext());
         } catch (JSONException e) {
             e.printStackTrace();
+            items = new ArrayList<>();
         }
-        // Create adapter passing in the sample user data
-        mAdapter = new ItemsAdapter(this, items);
-        // Attach the adapter to the recyclerview to populate items
-        rvItems.setAdapter(mAdapter);
-        // Set layout manager to position the items
-        rvItems.setLayoutManager(new LinearLayoutManager(this));
-        // That's all!
 
-//        MobileAds.initialize(getApplicationContext());
-//        mAdView = (AdView) findViewById(R.id.adView);
-//        AdRequest adRequest = new AdRequest.Builder().build();
-//        mAdView.loadAd(adRequest);
+        mAdapter = new ItemsAdapter(items);
+        rvItems.setAdapter(mAdapter);
+        rvItems.setLayoutManager(new LinearLayoutManager(this));
 
         rvItems.addOnItemTouchListener(
                 new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
@@ -210,8 +190,23 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
         );
-        //requestStoragePermissions();
+
         enableEdgeToEdge();
+
+        SearchView searchView = findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                mAdapter.filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mAdapter.filter(newText);
+                return false;
+            }
+        });
     }
 
     private void enableEdgeToEdge() {
@@ -222,7 +217,6 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
     }
-
 
     private void requestStoragePermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
@@ -236,27 +230,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
             String posString = (String) data.getExtras().get("position");
             Integer position = Integer.parseInt(posString);
+
+            // Güncellenen veriyi set et
             mAdapter.getItem(position).setTitle((String) data.getExtras().get("title"));
             mAdapter.getItem(position).setText((String) data.getExtras().get("text"));
             mAdapter.notifyItemChanged(position);
+
         } else if (requestCode == 1 && resultCode == EditActivity.RESULT_DELETED) {
             String posString = (String) data.getExtras().get("position");
             Integer position = Integer.parseInt(posString);
             mAdapter.remove(position);
         }
+
         if (requestCode == REQUEST_IMPORT_FILE && resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
             readJsonFile(uri);
         }
+
         if (requestCode == REQUEST_EXPORT_FILE && resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
             writeJsonToFile(uri);
@@ -280,46 +276,52 @@ public class MainActivity extends AppCompatActivity {
         return jsonArray.toString();
     }
 
-
     private void writeJsonToFile(Uri uri) {
         String jsonContent = convertItemsToJson();
         try {
             ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "w");
-            FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
-            fileOutputStream.write(jsonContent.getBytes());
-            fileOutputStream.close();
-            pfd.close();
+            if (pfd != null) {
+                FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+                fileOutputStream.write(jsonContent.getBytes());
+                fileOutputStream.close();
+                pfd.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     private void readJsonFile(Uri uri) {
-        ArrayList<Item> items = new ArrayList<>();
+        ArrayList<Item> importedItems = new ArrayList<>();
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder stringBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
-            inputStream.close();
-            String jsonString = stringBuilder.toString();
+            if (inputStream != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                inputStream.close();
+                String jsonString = stringBuilder.toString();
 
-            // JSON veriyi doğrudan JSONArray olarak işle
-            JSONArray itemsArray = new JSONArray(jsonString);
+                JSONArray itemsArray = new JSONArray(jsonString);
 
-            for (int i = 0; i < itemsArray.length(); i++) {
-                JSONObject itemObj = itemsArray.getJSONObject(i);
-                String id = itemObj.getString("id");
-                String time = itemObj.getString("time");
-                String title = itemObj.getString("title");
-                String text = itemObj.getString("text");
-                items.add(new Item(id, time, title, text));
-            }
+                for (int i = 0; i < itemsArray.length(); i++) {
+                    JSONObject itemObj = itemsArray.getJSONObject(i);
+                    String id = itemObj.getString("id");
+                    String time = itemObj.getString("time");
+                    String title = itemObj.getString("title");
+                    String text = itemObj.getString("text");
+                    importedItems.add(new Item(id, time, title, text));
+                }
 
-            if (!items.isEmpty() && mAdapter != null) {
-                runOnUiThread(() -> mAdapter.updateItems(items));
+                if (!importedItems.isEmpty() && mAdapter != null) {
+                    // Ana listeyi de güncelle
+                    this.items.clear();
+                    this.items.addAll(importedItems);
+                    runOnUiThread(() -> mAdapter.updateItems(importedItems));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -327,10 +329,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
